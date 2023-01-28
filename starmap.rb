@@ -21,7 +21,7 @@ require_relative "helpers"
   purple: "#fca7ea"
 }
 
-@anchors.each { |key, val| @anchors[key] = hex2hsl(val) }
+@anchors.each { |key, val| @anchors[key] = hex2yuv(val) }
 
 tokyonight = JSON.parse(File.read("tokyonight.json"))
 

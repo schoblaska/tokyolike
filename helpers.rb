@@ -56,14 +56,34 @@ def hex2hsl(hex)
   [h.round(6), s.round(6), l.round(6)]
 end
 
+# convert a hex color to yuv colorspace
+def hex2yuv(hex)
+  r, g, b = hex2rgb(hex)
+  y = 0.299 * r + 0.587 * g + 0.114 * b
+  u = -0.147 * r - 0.289 * g + 0.436 * b
+  v = 0.615 * r - 0.515 * g - 0.100 * b
+  [y, u, v]
+end
+
+def yuv2hex(y, u, v)
+  r = y + 1.14 * v
+  g = y - 0.395 * u - 0.581 * v
+  b = y + 2.032 * u
+  rgb2hex(r, g, b)
+end
+
+def rgb2hex(r, g, b)
+  [r, g, b].map { |x| x.round.to_s(16).rjust(2, "0") }.join
+end
+
 # calculate the distance between two points in 3d space
 def dist3d(x1, y1, z1, x2, y2, z2)
   Math.sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1 - z2)**2)
 end
 
 # find the closest three anchors to the given hsl coordinates
-def closest_neighbors(h, s, l)
-  @anchors.sort_by { |_, anchor_hsl| dist3d(h, s, l, *anchor_hsl) }[0..2]
+def closest_neighbors(x, y, z, n = 3)
+  @anchors.sort_by { |_, anchor_xyz| dist3d(x, y, z, *anchor_xyz) }[0..(n - 1)]
 end
 
 def starmap(hash)
@@ -75,8 +95,8 @@ def starmap(hash)
     elsif value.downcase == "none"
       value
     else
-      hsl = hex2hsl(value)
-      { hsl: hsl, neighbors: closest_neighbors(*hsl) }
+      yuv = hex2yuv(value)
+      { yuv: yuv, neighbors: closest_neighbors(*yuv) }
     end
   end
 
