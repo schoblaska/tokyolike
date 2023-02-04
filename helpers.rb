@@ -5,6 +5,30 @@ def colorskew(a1, a2, a3, a4, b1, b2, b3)
     .map { |a, b, c, d| a + b + c + d - a1.shift - a2.shift - a3.shift }
 end
 
+# This method takes a set of 16 xyz coordinates in 3d space (orig_coords), plus an additional 17th xyz coordinate (orig_point). It is then provided a second set of 16 xyz coordinates, representing the same original 16 coordinates but moved to new locations (new_coords). The method returns the location of "orig_point" in this new transformed space by first calculating the relative distance of "orig_point" to each of the coordinates in "orig_coords", and then finding the xyz coordinate relative to "new_coords" that most closely matches.
+def skew3d(orig_coords, new_coords, orig_point)
+  distances =
+    orig_coords.map do |x, y, z|
+      Math.sqrt(
+        (x - orig_point[0])**2 + (y - orig_point[1])**2 + (z - orig_point[2])**2
+      )
+    end
+
+  new_point = [0, 0, 0]
+
+  distances.each_with_index do |distance, i|
+    new_point[0] += distance * new_coords[i][0]
+    new_point[1] += distance * new_coords[i][1]
+    new_point[2] += distance * new_coords[i][2]
+  end
+
+  new_point[0] /= distances.sum
+  new_point[1] /= distances.sum
+  new_point[2] /= distances.sum
+
+  new_point
+end
+
 # https://www.micro-epsilon.com/service/glossar/Farbabstand.html
 def colordist(hex1, hex2)
   r1, g1, b1 = hex2rgb(hex1)
